@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Adds a "Verified" banner to official staff profiles.
-// @author       Your Name
+// @author       Kostas Panagias
 // @match        https://discord.com/*
 // @grant        GM_xmlhttpRequest
 // @connect      raw.githubusercontent.com
