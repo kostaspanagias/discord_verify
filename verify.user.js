@@ -46,7 +46,7 @@
 
             const banner = document.createElement('div');
             banner.className = 'verified-staff-banner';
-            banner.innerHTML = "✅ OFFICIAL STAFF MEMBER";
+            banner.innerHTML = "✅ VERIFIED MEMBER";
             banner.style = `
                 background: #23a559;
                 color: white;
