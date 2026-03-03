@@ -14,7 +14,7 @@
 (function() {
     'use strict';
 
-    // REPLACE THIS with the "Raw" link to your staff_ids.json file
+    // REPLACE THIS with the "Raw" link to your ids.json file
     const DATA_URL = "https://raw.githubusercontent.com/kostaspanagias/discord_verify/refs/heads/main/ids.json";
     let trustedIds = [];
 
