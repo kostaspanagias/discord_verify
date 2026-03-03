@@ -15,7 +15,7 @@
     'use strict';
 
     // REPLACE THIS with the "Raw" link to your staff_ids.json file
-    const DATA_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/staff_ids.json";
+    const DATA_URL = "https://raw.githubusercontent.com/kostaspanagias/discord_verify/refs/heads/main/ids.json";
     let trustedIds = [];
 
     // Fetch the latest staff list
