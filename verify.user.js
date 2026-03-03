@@ -7,8 +7,8 @@
 // @match        https://discord.com/*
 // @grant        GM_xmlhttpRequest
 // @connect      raw.githubusercontent.com
-// @updateURL    https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/verify.user.js
-// @downloadURL  https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/verify.user.js
+// @updateURL    https://github.com/kostaspanagias/discord_verify/raw/refs/heads/main/verify.user.js
+// @downloadURL  https://github.com/kostaspanagias/discord_verify/raw/refs/heads/main/verify.user.js
 // ==/UserScript==
 
 (function() {
