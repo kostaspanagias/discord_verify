@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Discord Staff Verifier MVP
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.3
 // @description  Adds a "Verified" banner to official staff profiles.
 // @author       Kostas Panagias
 // @match        https://discord.com/*
@@ -14,11 +14,12 @@
 (function() {
     'use strict';
 
-    // REPLACE THIS with the "Raw" link to your ids.json file
     const DATA_URL = "https://raw.githubusercontent.com/kostaspanagias/discord_verify/refs/heads/main/ids.json";
     let trustedIds = [];
 
-    // Fetch the latest staff list
+    // Log to console so you can see it's active in F12
+    console.log("%c[Staff Verifier] Active and watching...", "color: #23a559; font-weight: bold;");
+
     function updateStaffList() {
         GM_xmlhttpRequest({
             method: "GET",
@@ -26,9 +27,9 @@
             onload: function(response) {
                 try {
                     trustedIds = JSON.parse(response.responseText);
-                    console.log("Staff Verifier: List updated successfully.");
+                    console.log(`[Staff Verifier] Successfully loaded ${trustedIds.length} IDs.`);
                 } catch (e) {
-                    console.error("Staff Verifier: Failed to parse ID list.");
+                    console.error("[Staff Verifier] Failed to parse ID list from GitHub.");
                 }
             }
         });
@@ -36,12 +37,29 @@
 
     updateStaffList();
 
-    function injectBadge(node) {
-        // Find the User ID in the Discord profile data-attributes
-        const idElement = node.querySelector('[data-user-id]');
-        const userId = idElement ? idElement.getAttribute('data-user-id') : null;
+    function findUserId(node) {
+        // 1. Check the node itself
+        if (node.hasAttribute('data-user-id')) return node.getAttribute('data-user-id');
+        
+        // 2. Look for any child with the attribute
+        const childWithId = node.querySelector('[data-user-id]');
+        if (childWithId) return childWithId.getAttribute('data-user-id');
 
+        // 3. Fallback: Search for internal React links (common in newer Discord builds)
+        const avatarLink = node.querySelector('a[href*="/users/"]');
+        if (avatarLink) {
+            const match = avatarLink.href.match(/\/users\/(\d+)/);
+            if (match) return match[1];
+        }
+
+        return null;
+    }
+
+    function injectBadge(node) {
+        const userId = findUserId(node);
+        
         if (userId && trustedIds.includes(userId)) {
+            // Prevent duplicate banners
             if (node.querySelector('.verified-staff-banner')) return;
 
             const banner = document.createElement('div');
@@ -52,28 +70,39 @@
                 color: white;
                 font-weight: 800;
                 text-align: center;
-                padding: 10px;
-                font-size: 14px;
-                border-bottom: 2px solid #1a7a42;
-                letter-spacing: 0.5px;
+                padding: 12px 5px;
+                font-size: 13px;
+                border-bottom: 3px solid #1a7a42;
+                letter-spacing: 1px;
+                z-index: 999;
+                position: sticky;
+                top: 0;
+                width: 100%;
+                box-sizing: border-box;
+                border-radius: 4px 4px 0 0;
             `;
+            
+            // Discord modals can be tricky; prepending to the root of the modal/popout
             node.prepend(banner);
         }
     }
 
-    // Watch for the profile popout or full modal to appear
     const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
+        for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
                 if (node.nodeType === 1) {
-                    // Target the popout or the full profile modal
-                    const profile = node.querySelector('[class*="userPopout"], [class*="userProfileModal"]');
-                    if (profile || node.matches('[class*="userPopout"], [class*="userProfileModal"]')) {
-                        injectBadge(profile || node);
+                    // Search for the popout/modal inside the newly added node
+                    const profileElement = node.matches('[class*="userPopout"], [class*="userProfileModal"]') 
+                        ? node 
+                        : node.querySelector('[class*="userPopout"], [class*="userProfileModal"]');
+
+                    if (profileElement) {
+                        // Small delay to ensure Discord has rendered the internal ID attributes
+                        setTimeout(() => injectBadge(profileElement), 50);
                     }
                 }
-            });
-        });
+            }
+        }
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
